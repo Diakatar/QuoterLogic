@@ -1,0 +1,7 @@
+D:\$Projects\QuoterLogic\QuoterLogic\QuoterLogic\bin\Debug\QuoterLogic.exe.config
+D:\$Projects\QuoterLogic\QuoterLogic\QuoterLogic\bin\Debug\QuoterLogic.exe
+D:\$Projects\QuoterLogic\QuoterLogic\QuoterLogic\bin\Debug\QuoterLogic.pdb
+D:\$Projects\QuoterLogic\QuoterLogic\QuoterLogic\obj\Debug\QuoterLogic.csprojAssemblyReference.cache
+D:\$Projects\QuoterLogic\QuoterLogic\QuoterLogic\obj\Debug\QuoterLogic.csproj.CoreCompileInputs.cache
+D:\$Projects\QuoterLogic\QuoterLogic\QuoterLogic\obj\Debug\QuoterLogic.exe
+D:\$Projects\QuoterLogic\QuoterLogic\QuoterLogic\obj\Debug\QuoterLogic.pdb
