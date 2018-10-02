@@ -42,11 +42,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\MovedEventArgs.cs" />
+    <Compile Include="Helpers\Enums.cs" />
     <Compile Include="Mock\OrderNotifictorMock.cs" />
     <Compile Include="Mock\OrderPlacerMock.cs" />
     <Compile Include="Interfaces\IObservableSortedList.cs" />
-    <Compile Include="Interfaces\ILinked.cs" />
+    <Compile Include="Interfaces\IObservableCollectionItem.cs" />
     <Compile Include="Classes\ObservableSortedList.cs" />
     <Compile Include="Classes\QuoterLogic.cs" />
     <Compile Include="Classes\Order.cs" />
