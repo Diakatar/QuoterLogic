@@ -5,3 +5,10 @@ D:\$Projects\QuoterLogic\QuoterLogic\QuoterLogic\obj\Debug\QuoterLogic.csprojAss
 D:\$Projects\QuoterLogic\QuoterLogic\QuoterLogic\obj\Debug\QuoterLogic.csproj.CoreCompileInputs.cache
 D:\$Projects\QuoterLogic\QuoterLogic\QuoterLogic\obj\Debug\QuoterLogic.exe
 D:\$Projects\QuoterLogic\QuoterLogic\QuoterLogic\obj\Debug\QuoterLogic.pdb
+E:\Projects\QuoterLogic\QuoterLogic\bin\Debug\QuoterLogic.exe.config
+E:\Projects\QuoterLogic\QuoterLogic\bin\Debug\QuoterLogic.exe
+E:\Projects\QuoterLogic\QuoterLogic\bin\Debug\QuoterLogic.pdb
+E:\Projects\QuoterLogic\QuoterLogic\obj\Debug\QuoterLogic.csprojResolveAssemblyReference.cache
+E:\Projects\QuoterLogic\QuoterLogic\obj\Debug\QuoterLogic.csproj.CoreCompileInputs.cache
+E:\Projects\QuoterLogic\QuoterLogic\obj\Debug\QuoterLogic.exe
+E:\Projects\QuoterLogic\QuoterLogic\obj\Debug\QuoterLogic.pdb

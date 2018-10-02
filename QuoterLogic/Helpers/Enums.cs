@@ -15,4 +15,12 @@
         PendingMovement,
         PendingPlacing,
     }
+
+    public enum ModificationType
+    {
+        Unmodified,
+        Added,
+        Deleted,
+        Changed
+    }
 }
