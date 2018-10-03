@@ -2,9 +2,9 @@
 
 namespace QuoterLogic.Classes
 {
-    public class PlacerTask
+    public class ProcessorTask
     {
-        public PlacerTask(Order order, PlacerState state, bool isNotification = false)
+        public ProcessorTask(Order order, ProcessState state, bool isNotification = false)
         {
             Order = order;
             State = state;
@@ -12,7 +12,7 @@ namespace QuoterLogic.Classes
         }
 
         public Order Order { get; }
-        public PlacerState State { get; }
+        public ProcessState State { get; }
 
         public bool IsNotification { get; }
     }

@@ -1,26 +1,10 @@
 ﻿namespace QuoterLogic.Helpers
 {
-    public enum OrderState
-    {
-        Undefined,
-        Placed,
-        Moved,
-        Canceled
-    }
-
-    public enum PlacerState
+    public enum ProcessState
     {
         Unmodified,
-        PendingCancelation,
-        PendingMovement,
-        PendingPlacing,
-    }
-
-    public enum ModificationType
-    {
-        Unmodified,
-        Added,
-        Deleted,
-        Changed
+        Cancelation,
+        Movement,
+        Placing,
     }
 }

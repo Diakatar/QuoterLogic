@@ -1,6 +1,5 @@
 ﻿using System;
 using QuoterLogic.Helpers;
-using QuoterLogic.Interfaces;
 
 namespace QuoterLogic.Classes
 {
@@ -36,9 +35,7 @@ namespace QuoterLogic.Classes
 
         public int Index { get; set; } = Int32.MaxValue;
 
-        public OrderState ExpectedState { get; set; } = OrderState.Undefined;
-
-        public PlacerState PlacerState { get; set; } = PlacerState.Unmodified;
+        public ProcessState PlacerState { get; set; } = ProcessState.Unmodified;
 
         public decimal Price { get; set; }
        

@@ -42,7 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\PlacerTask.cs" />
+    <Compile Include="Classes\ProcessorTask.cs" />
     <Compile Include="Classes\PreparedEventArgs.cs" />
     <Compile Include="Helpers\Enums.cs" />
     <Compile Include="Mock\OrderNotifictorMock.cs" />
