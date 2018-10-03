@@ -5,12 +5,12 @@ namespace QuoterLogic.Classes
 {
     public class PreparedEventArgs : EventArgs
     {
-        public PreparedEventArgs(Order order, ModificationType modificationType)
+        public PreparedEventArgs(Order order, PlacerState modificationType)
         {
             Order = order;
             ModificationType = modificationType;
         }
         public Order Order { get; }
-        public ModificationType ModificationType { get; }
+        public PlacerState ModificationType { get; }
     }
 }

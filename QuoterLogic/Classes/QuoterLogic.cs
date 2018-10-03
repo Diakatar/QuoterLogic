@@ -14,7 +14,9 @@ namespace QuoterLogic.Classes
         private readonly IOrderNotificator _notificator;
         private readonly OrderCollection _buyPortfolio;
         private readonly OrderCollection _sellPortfolio;
-        private readonly Queue<PlacerTask> placerQueue = new Queue<PlacerTask>();
+        private readonly Queue<PlacerTask> _placerQueue = new Queue<PlacerTask>();
+        private readonly Dictionary<Order, Queue<PlacerState>> _pendingOrders =
+            new Dictionary<Order, Queue<PlacerState>>();
         #endregion
 
         #region Ctor
@@ -37,7 +39,6 @@ namespace QuoterLogic.Classes
             (order.Size > 0 ? _buyPortfolio : _sellPortfolio).Add(order);
         }
 
-
         public void MoveOrder(int orderId, decimal newPrice)
         {
             var order = _buyPortfolio[orderId] ?? _sellPortfolio[orderId] ?? throw new KeyNotFoundException("Order not found");
@@ -55,26 +56,28 @@ namespace QuoterLogic.Classes
         public void OrderPlaced(int orderId)
         {
             var order = _buyPortfolio[orderId] ?? _sellPortfolio[orderId] ?? throw new KeyNotFoundException("Order not found");
-            if (order.ExpectedState != OrderState.Undefined) placerQueue.Enqueue(new PlacerTask(order, PlacerState.Unmodified));
-            if (placerQueue.Count > 0) CallPlacer(); else CallNotificator(order);
-            //order.ExpectedState = OrderState.Undefined;
+            if (!_pendingOrders.ContainsKey(order) || _pendingOrders[order].Count == 0 || _pendingOrders[order].Peek() != PlacerState.PendingPlacing) throw new Exception("Notificator returned unexpected result.");
+            //if (order.ExpectedState != OrderState.Undefined) _placerQueue.Enqueue(new PlacerTask(order, PlacerState.Unmodified));
+            _pendingOrders[order].Dequeue();
+            if (_placerQueue.Count > 0) CallPlacer(); //; else CallNotificator(order);
         }
 
         public void OrderMoved(int orderId)
         {
             var order = _buyPortfolio[orderId] ?? _sellPortfolio[orderId] ?? throw new KeyNotFoundException("Order not found");
-            if (order.ExpectedState != OrderState.Undefined) placerQueue.Enqueue(new PlacerTask(order, PlacerState.Unmodified));
-            if (placerQueue.Count > 0) CallPlacer(); else CallNotificator(order);
-            //order.ExpectedState = OrderState.Undefined;
+            if (!_pendingOrders.ContainsKey(order) || _pendingOrders[order].Count == 0 || _pendingOrders[order].Peek() != PlacerState.PendingMovement) throw new Exception("Notificator returned unexpected result.");
+            if (order.ExpectedState != OrderState.Undefined) _placerQueue.Enqueue(new PlacerTask(order, PlacerState.Unmodified));
+            _pendingOrders[order].Dequeue();
+            if (_placerQueue.Count > 0) CallPlacer(); //; else CallNotificator(order);
         }
 
         public void OrderCanceled(int orderId)
         {
-            var order = _buyPortfolio[orderId] ?? _sellPortfolio[orderId];
-            if (order != null && order.ExpectedState != OrderState.Undefined) placerQueue.Enqueue(new PlacerTask(order, PlacerState.Unmodified));
-            if (placerQueue.Count > 0) CallPlacer(); else CallNotificator(orderId);
-            //if (order != null) order.ExpectedState = OrderState.Undefined;
-
+            var order = _buyPortfolio[orderId] ?? _sellPortfolio[orderId] ?? _pendingOrders.Keys.FirstOrDefault(o=>o.Id == orderId) ?? throw new KeyNotFoundException("Order not found");
+            if (!_pendingOrders.ContainsKey(order) || _pendingOrders[order].Count == 0 || _pendingOrders[order].Peek() != PlacerState.PendingCancelation) throw new Exception("Notificator returned unexpected result.");
+            if (order.ExpectedState != OrderState.Undefined) _placerQueue.Enqueue(new PlacerTask(order, PlacerState.Unmodified));
+            _pendingOrders[order].Dequeue();
+            if (_placerQueue.Count > 0) CallPlacer(); //; else CallNotificator(orderId);
         }
 
         public void OrderFilled(int orderId, int size, decimal price)
@@ -87,14 +90,23 @@ namespace QuoterLogic.Classes
         private void OnCollectionPrepared(object sender, PreparedEventArgs e)
         {
             if (!(sender is OrderCollection collection)) return;
-            if (placerQueue.Count > 0) throw new Exception("Still not-notified operatons in queue, queue will be purged");
-            if (placerQueue.Count > 0) placerQueue.Clear();
+            /*if (_placerQueue.Count > 0) throw new Exception("Still not-notified operatons in queue, queue will be purged");
+            if (_placerQueue.Count > 0) _placerQueue.Clear();*/
 
+            // выполнить удаление сначала
+            if (e.ModificationType == e.Order.PlacerState && e.ModificationType == PlacerState.PendingCancelation)
+                _placerQueue.Enqueue(new PlacerTask(e.Order, e.Order.PlacerState));
+
+            // выполнить удаление сначала, затем остальные действия
             foreach (var order in collection.Modified)
-                placerQueue.Enqueue(new PlacerTask(order, order.PlacerState));
-                
-            if (placerQueue.Count > 0) CallPlacer();
-            switch (e.ModificationType)
+                _placerQueue.Enqueue(new PlacerTask(order, order.PlacerState));
+
+            _placerQueue.Enqueue(new PlacerTask(e.Order, e.ModificationType, true)); 
+
+            collection.Flush();
+
+            if (_placerQueue.Count > 0) CallPlacer();
+            /*switch (e.ModificationType)
             {
                 case ModificationType.Added:
                     if (e.Order.PlacerState == PlacerState.Unmodified) //заказ не вошел в пул
@@ -131,15 +143,15 @@ namespace QuoterLogic.Classes
                             break;
                     }
                     break;
-            }
-            collection.Flush();
+            }*/
+            
         }
         #endregion
 
         #region Private methods
         private void CallNotificator(Order order)
         {
-            switch (order?.ExpectedState)
+            switch (order.ExpectedState)
             {
                 case OrderState.Placed:
                     _notificator.OrderPlaced(order.Id);
@@ -148,7 +160,6 @@ namespace QuoterLogic.Classes
                     _notificator.OrderMoved(order.Id);
                     break;
                 case OrderState.Canceled:
-                case null:
                     _notificator.OrderCanceled(order.Id);
                     break;
             }
@@ -162,24 +173,35 @@ namespace QuoterLogic.Classes
 
         private void CallPlacer()
         {
-            if (placerQueue.Count == 0) return;
-            var data = placerQueue.Dequeue();
+            if (_placerQueue.Count == 0) return;
+            var data = _placerQueue.Dequeue();
             switch (data.State)
             {
                 case PlacerState.PendingCancelation:
                     _placer.CancelOrder(data.Order.Id);
+                    AddPending(data.Order, PlacerState.PendingCancelation);
                     break;
                 case PlacerState.PendingMovement:
                     _placer.MoveOrder(data.Order.Id, data.Order.Price);
+                    AddPending(data.Order, PlacerState.PendingMovement);
                     break;
                 case PlacerState.PendingPlacing:
                     _placer.PlaceOrder(data.Order.Id, data.Order.Price, data.Order.Size);
+                    AddPending(data.Order, PlacerState.PendingPlacing);
                     break;
                 case PlacerState.Unmodified:
                     CallNotificator(data.Order);
+                    _pendingOrders.Remove(data.Order);
                     break;
             }
         }
+
+        private void AddPending(Order order, PlacerState state)
+        {
+            if (!_pendingOrders.ContainsKey(order)) _pendingOrders.Add(order, new Queue<PlacerState>());
+            _pendingOrders[order].Enqueue(state);
+        }
+
         #endregion
     }
 }

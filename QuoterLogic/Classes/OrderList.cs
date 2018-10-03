@@ -12,7 +12,7 @@ namespace QuoterLogic.Classes
         #region Events
         public event EventHandler<PreparedEventArgs> Prepared;
 
-        protected void OnPrepared(Order order, ModificationType modificationType)
+        protected void OnPrepared(Order order, PlacerState modificationType)
         {
             Prepared?.Invoke(this, new PreparedEventArgs(order, modificationType));
         }
@@ -44,7 +44,7 @@ namespace QuoterLogic.Classes
             if (item == null) throw new ArgumentNullException();
             if (_innerCollection.ContainsValue(item.Id)) throw new ArgumentException();
             _innerCollection.Add(item, item.Id);
-            Prepare(item, ModificationType.Added);
+            Prepare(item, PlacerState.PendingPlacing);
         }
         [Obsolete]
         public void Clear()
@@ -66,7 +66,7 @@ namespace QuoterLogic.Classes
         {
             if (item == null) return false;
             bool result = _innerCollection.Remove(item);
-            Prepare(item, ModificationType.Deleted);
+            Prepare(item, PlacerState.PendingCancelation);
             return result;
         }
 
@@ -86,10 +86,10 @@ namespace QuoterLogic.Classes
                 item.Price = price;
                 _innerCollection.RemoveAt(IndexOf(item));
                 _innerCollection.Add(item, item.Id);
-                Prepare(item, ModificationType.Changed);
+                Prepare(item, PlacerState.PendingMovement);
             }
             else
-                Prepare(item, ModificationType.Unmodified);
+                Prepare(item, PlacerState.Unmodified);
 
         }
 
@@ -131,12 +131,12 @@ namespace QuoterLogic.Classes
         #endregion
 
         #region Private methods
-        private void Prepare(Order order, ModificationType modificationType)
+        private void Prepare(Order order, PlacerState modificationType)
         {
             foreach (var o in this)
             {
                 int newIndex = IndexOf(o);
-                bool activeChanged = (modificationType == ModificationType.Changed && o.Id == order.Id);
+                bool activeChanged = (modificationType == PlacerState.PendingMovement && o.Id == order.Id);
                 if (o.Index == newIndex)
                 {
                     o.PlacerState = activeChanged ? PlacerState.PendingMovement : PlacerState.Unmodified;
@@ -154,7 +154,7 @@ namespace QuoterLogic.Classes
                     o.PlacerState = newIndex < _poolSize ? PlacerState.PendingPlacing : PlacerState.Unmodified;
                 o.Index = newIndex;
             }
-            if (modificationType == ModificationType.Deleted && order.Index < _poolSize)
+            if (modificationType == PlacerState.PendingCancelation && order.Index < _poolSize)
                 order.PlacerState = PlacerState.PendingCancelation;
             
             OnPrepared(order, modificationType);
