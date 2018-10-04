@@ -37,7 +37,7 @@ namespace QuoterLogic
             Console.Write("37> "); quoter.OrderPlaced(1);
             Console.WriteLine(" 8]------------MoveOrder(4)-------------");
             Console.Write("39> "); quoter.MoveOrder(4, 300);
-            Console.WriteLine("9]------------MoveOrder(4)-------------");
+            Console.WriteLine(" 9]------------MoveOrder(4)-------------");
             Console.Write("41> "); quoter.MoveOrder(4, 50);
             Console.Write("42> "); quoter.OrderCanceled(1);
             Console.Write("43> "); quoter.OrderPlaced(4);
@@ -50,6 +50,11 @@ namespace QuoterLogic
             Console.Write("50> "); quoter.OrderPlaced(1);
             Console.WriteLine("12]-----------CancelOrder(3)-----------");
             Console.Write("52> "); quoter.CancelOrder(3);
+            Console.WriteLine("13]------------PlaceOrder(5)------------");
+            Console.Write("54> "); quoter.PlaceOrder(5, 500, 10);
+            Console.WriteLine("14]-----------OrderFilled(1)-----------");
+            Console.Write("56> "); quoter.OrderFilled(1, 100, 10);
+            Console.Write("57> "); quoter.OrderPlaced(5);
             Console.WriteLine("---------------------------------------");
             Console.ReadLine();
         }

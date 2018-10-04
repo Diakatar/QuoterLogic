@@ -75,6 +75,13 @@ namespace QuoterLogic.Classes
             return result;
         }
 
+        public void Fill(Order item)
+        {
+            if (item == null) throw new ArgumentNullException();
+            _innerCollection.RemoveAt(IndexOf(item));
+            Prepare(item, ProcessState.Filled);
+        }
+
         public void ChangePrice(Order item, decimal price)
         {
             if (item.Price != price)
@@ -82,7 +89,6 @@ namespace QuoterLogic.Classes
                 item.Price = price;
                 _innerCollection.RemoveAt(IndexOf(item));
                 _innerCollection.Add(item, item.Id);
-                
             }
             Prepare(item, ProcessState.Movement);
         }

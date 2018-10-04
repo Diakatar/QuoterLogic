@@ -6,5 +6,6 @@
         Cancelation,
         Movement,
         Placing,
+        Filled,
     }
 }

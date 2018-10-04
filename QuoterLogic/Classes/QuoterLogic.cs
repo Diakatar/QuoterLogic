@@ -99,8 +99,11 @@ namespace QuoterLogic.Classes
 
         public void OrderFilled(int orderId, int size, decimal price)
         {
-            if ((_buyPortfolio[orderId] ?? _sellPortfolio[orderId]) != null)
-                _notificator.OrderFilled(orderId, size, price);
+            var order = _buyPortfolio[orderId]
+                        ?? _sellPortfolio[orderId]
+                        ?? _pendingOrders.Keys.FirstOrDefault(o => o.Id == orderId)
+                        ?? throw new KeyNotFoundException("Order not found");
+            (order.Size > 0 ? _buyPortfolio : _sellPortfolio).Fill(order);
         }
         #endregion
 
@@ -136,6 +139,9 @@ namespace QuoterLogic.Classes
                         break;
                     case ProcessState.Placing:
                         _notificator.OrderPlaced(data.Order.Id);
+                        break;
+                    case ProcessState.Filled:
+                        _notificator.OrderFilled(data.Order.Id, data.Order.Size, data.Order.Price);
                         break;
                 }
             else
